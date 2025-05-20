@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Newtonsoft.Json;
 using static System.Net.Mime.MediaTypeNames;
 using static WpfTCPServer.WindowTaskmgr;
@@ -39,17 +40,43 @@ namespace WpfTCPServer
         private string[] cmdType_str = { "normal", "test", "getTasksList", "MsgBox", "KillbyPID","cmd","mute","capture" }; //命令类型
         private bool isTaskMgrOpen = false;
         private WindowTaskmgr taskMgrWindow = null;
-        private bool isCmdWindowOpen = false;
         private cmdWindow windowCmd = null;
+        private DispatcherTimer logSaver = null;
+        private int logSaver_interval = 10000;
+
         public MainWindow()
         {
             InitializeComponent();
             DefaultSettings();
+            logSaver = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(logSaver_interval),
+            };
+            logSaver.Tick += LogSaver_Tick;
+            logSaver.Start();
+        }
+
+        private void LogSaver_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                string filePath = @"serv" + DateTime.Now.ToString("yyyy-MM-dd")+".log";
+                string content = servLog_TextBox.Text;
+
+                // 确保目录存
+                File.WriteAllText(filePath, content);
+
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show("日志保存失败: "+ex.Message,"logSaver");
+            }
         }
 
         private void DefaultSettings()
         {
             servPort_TextBox.Text = "5000";
+            logSaver_interval = int.Parse(saveSec_TextBox.Text);
         }
 
         private void BtnStart_Click(object sender, RoutedEventArgs e)
@@ -402,7 +429,6 @@ namespace WpfTCPServer
                     windowCmd = new cmdWindow(this, info);
                     windowCmd.Closed += (s, e_) =>
                     {
-                        isCmdWindowOpen = true;
                         windowCmd = null;
                     };
                     windowCmd.Show();
@@ -451,6 +477,19 @@ namespace WpfTCPServer
             {
                 NetworkStream stream = info.TcpClient.GetStream();
                 sendPackage(stream,7,"cap");
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure to exit?","Quit",MessageBoxButton.OKCancel,MessageBoxImage.Warning);
+            if(result == MessageBoxResult.OK)
+            {
+                logSaver.Stop();
+            }
+            else
+            {
+                e.Cancel = true;
             }
         }
     }

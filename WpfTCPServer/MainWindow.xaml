@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfTCPServer"
         mc:Ignorable="d"
-        Title="TCPServer WPF" Height="600" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        Title="TCPServer WPF" Height="600" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Closing="Window_Closing">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -21,7 +21,8 @@
 
         <Label FontSize="16" Grid.Row="0" Grid.Column="0">TCP服务器配置面板</Label>
         <Button x:Name="BtnStart" Grid.Row="1" Grid.Column="0" Click="BtnStart_Click">启动服务器</Button>
-        <Button x:Name="BtnApply" Grid.Row="1" Grid.Column="2">应用设置</Button>
+        <Label Grid.Row="1" Grid.Column="2">每隔多少秒保存日志:</Label>
+        <TextBox Grid.Row="1" Grid.Column="2" x:Name="saveSec_TextBox" Height="30" Margin="123,5,163,5" Text="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Label Grid.Row="0" Grid.Column="2">服务器端口设置(默认5000):</Label>
         <TextBox x:Name="servPort_TextBox" Grid.Row="0" Grid.Column="2" Margin="167,0,107,0" AcceptsReturn="False" TextWrapping="NoWrap" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 
